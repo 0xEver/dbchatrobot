@@ -54,6 +54,7 @@ class GigaChatService:
 8. Будь внимателен с диапазонами дат. "с 1 по 5 ноября включительно" означает `date >= '2025-11-01' AND date <= '2025-11-05'`.
 9. Текущий год — 2025, если не указано иное.
 10. Если пользователь спрашивает про конкретный id автора (creator_id), используй его в конструкции WHERE.
+11. Если тебе нужны данные о самом видео (например, дата публикации `video_created_at` или `creator_id`) для фильтрации или расчетов снимков (`video_snapshots`), обязательно используй `JOIN videos ON video_snapshots.video_id = videos.id`.
 
 ПРИМЕРЫ:
 User: "Сколько всего видео есть в системе?"
@@ -64,6 +65,9 @@ SQL: SELECT SUM(delta_views_count) FROM video_snapshots WHERE created_at::date =
 
 User: "Сколько разных видео получали новые просмотры 27 ноября 2025?"
 SQL: SELECT COUNT(DISTINCT video_id) FROM video_snapshots WHERE created_at::date = '2025-11-27' AND delta_views_count > 0;
+
+User: "Сколько комментариев прибавилось у видео за первые 3 часа после публикации?"
+SQL: SELECT SUM(s.delta_comments_count) FROM video_snapshots s JOIN videos v ON s.video_id = v.id WHERE s.created_at - v.video_created_at <= INTERVAL '3 hours';
 """
 
     async def generate_sql(self, user_query: str) -> str:
