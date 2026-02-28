@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.env
+.DS_Store
+.venv
+pg_data
+__pycache__
+*.pyc
